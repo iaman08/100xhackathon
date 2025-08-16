@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Solana Vanity Key Generator</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bs58@5.0.0/dist/bs58.min.js"></script>
+<script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
+
+    <script defer src="vanity.js"></script>
+</head>
+<body>
+    <div>
+        <h2>Generate Vanity Key</h2>
+        <label>Prefix (max 4 chars):</label>
+        <input type="text" id="prefix" maxlength="4">
+        <br><br>
+        <label>Password:</label>
+        <input type="password" id="password">
+        <br><br>
+        <button id="generateBtn">Generate Vanity Key</button>
+        <button id="copyBtn">Copy Encrypted Key</button>
+        <br><br>
+        <div id="output"></div>
+        <hr>
+
+        <h2>Decrypt Key</h2>
+        <label>Encrypted Key:</label>
+        <input type="text" id="encKey">
+        <label>Password:</label>
+        <input type="password" id="decPassword">
+        <button id="decryptBtn">Decrypt Key</button>
+        <div id="decOutput"></div>
+    </div>
+</body>
+</html>
