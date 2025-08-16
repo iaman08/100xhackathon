@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Solana Vanity Key Generator</title>
+<script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tweetnacl-util@0.15.1/nacl-util.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bs58@5.0.0/dist/bs58.min.js"></script>
+<script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
+<style>
+body { font-family: sans-serif; padding: 20px; }
+input { margin-bottom: 10px; }
+button { margin: 5px 0; }
+</style>
+</head>
+<body>
+<h2>Generate Vanity Key</h2>
+Prefix (max 4 chars): <input id="prefix" maxlength="4"><br>
+Password: <input id="password" type="password"><br>
+<button id="genBtn">Generate Key</button>
+<button id="copyEncBtn">Copy Encrypted Key</button><br>
+<div id="genOutput"></div>
+<hr>
+<h2>Decrypt Key</h2>
+Encrypted Key: <input id="encKey"><br>
+Password: <input id="decPassword" type="password"><br>
+<button id="decBtn">Decrypt Key</button>
+<div id="decOutput"></div>
+
+<script>
+const { Keypair } = solanaWeb3;
+
+let encKeyGlobal = null;
+let lastPubKey = null;
+
+function deriveKey(password) {
+    return nacl.hash(nacl.util.decodeUTF8(password)).slice(0,32);
+}
+
+function randomNonce() {
+    return nacl.randomBytes(24);
+}
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => alert("Copied!"));
+}
+
+document.getElementById('genBtn').onclick = async () => {
+    const prefix = document.getElementById('prefix').value.trim();
+    const pwd = document.getElementById('password').value.trim();
+    if(!prefix || prefix.length>4){ alert("Prefix invalid"); return; }
+
+    let kp, tries=0;
+    document.getElementById('genOutput').textContent = "Generating...";
+    while(true){
+        kp = Keypair.generate();
+        tries++;
+        if(kp.publicKey.toBase58().startsWith(prefix)) break;
+        if(tries%5000===0) await new Promise(r=>setTimeout(r,1));
+    }
+
+    lastPubKey = kp.publicKey.toBase58();
+    const key = deriveKey(pwd);
+    const nonce = randomNonce();
+    const box = nacl.secretbox(kp.secretKey, nonce, key);
+    const combined = new Uint8Array(nonce.length + box.length);
+    combined.set(nonce,0); combined.set(box, nonce.length);
+    encKeyGlobal = nacl.util.encodeBase64(combined);
+
+    document.getElementById('genOutput').innerHTML =
+        `Public Key: <strong>${lastPubKey}</strong><br>Tries: ${tries}<br>Encrypted Key ready.`;
+};
+
+document.getElementById('copyEncBtn').onclick = () => {
+    if(encKeyGlobal) copyToClipboard(encKeyGlobal);
+};
+
+document.getElementById('decBtn').onclick = () => {
+    const encrypted = document.getElementById('encKey').value.trim();
+    const pwd = document.getElementById('decPassword').value.trim();
+    try {
+        const combined = nacl.util.decodeBase64(encrypted);
+        const nonce = combined.slice(0,24);
+        const box = combined.slice(24);
+        const key = deriveKey(pwd);
+        const decrypted = nacl.secretbox.open(box, nonce, key);
+        if(!decrypted) throw "Wrong password";
+
+        const base58Key = bs58.encode(decrypted);
+        document.getElementById('decOutput').innerHTML =
+            `Base58 Private Key:<br>${base58Key}<br>
+             <button onclick="navigator.clipboard.writeText('${base58Key}')">Copy Base58 Key</button>`;
+    } catch(e){
+        document.getElementById('decOutput').textContent = 'Decryption failed! Wrong password?';
+    }
+};
+</script>
+</body>
+</html>
+
