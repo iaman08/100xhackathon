@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Solana Vanity Key Generator</title>
+
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bs58@5.0.0/dist/bs58.min.js"></script>
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
+    <script defer src="vanity.js"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(15px);
+            padding: 30px 40px;
+            border-radius: 18px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+            width: 400px;
+            max-width: 95%;
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 15px;
+            font-weight: 700;
+            color: #00ffe0;
+            text-shadow: 0 0 10px rgba(0, 255, 224, 0.7);
+        }
+
+        label {
+            display: block;
+            text-align: left;
+            margin: 10px 0 6px;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            outline: none;
+            margin-bottom: 18px;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+        }
+
+        input::placeholder {
+            color: rgba(255,255,255,0.6);
+        }
+
+        button {
+            width: calc(50% - 10px);
+            padding: 12px;
+            margin: 8px 5px;
+            border-radius: 10px;
+            border: none;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+
+        button#generateBtn {
+            background: #00d4ff;
+            color: #000;
+        }
+
+        button#generateBtn:hover {
+            background: #00a9cc;
+        }
+
+        button#copyBtn {
+            background: #ff007f;
+            color: #fff;
+        }
+
+        button#copyBtn:hover {
+            background: #cc0066;
+        }
+
+        button#decryptBtn {
+            width: 100%;
+            background: #00ff73;
+            color: #000;
+        }
+
+        button#decryptBtn:hover {
+            background: #00cc5a;
+        }
+
+        #output, #decOutput {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            background: rgba(0,0,0,0.4);
+            font-size: 13px;
+            word-break: break-all;
+            min-height: 40px;
+        }
+
+        hr {
+            margin: 30px 0;
+            border: 0;
+            border-top: 1px solid rgba(255,255,255,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🔑 Generate Vanity Key</h2>
+        <label>Prefix (max 4 chars):</label>
+        <input type="text" id="prefix" maxlength="4" placeholder="e.g. SOLA">
+
+        <label>Password:</label>
+        <input type="password" id="password" placeholder="Enter a strong password">
+
+        <div style="display:flex; justify-content:space-between;">
+            <button id="generateBtn">Generate</button>
+            <button id="copyBtn">Copy Key</button>
+        </div>
+
+        <div id="output">Generated key will appear here...</div>
+
+        <hr>
+
+        <h2>🔓 Decrypt Key</h2>
+        <label>Encrypted Key:</label>
+        <input type="text" id="encKey" placeholder="Paste encrypted key here">
+
+        <label>Password:</label>
+        <input type="password" id="decPassword" placeholder="Enter password">
+
+        <button id="decryptBtn">Decrypt Key</button>
+        <div id="decOutput">Decrypted key will appear here...</div>
+    </div>
+</body>
+</html>
